@@ -41,6 +41,12 @@ dependencies:
   uuid:
     specifier: ^9.0.1
     version: 9.0.1
+  waveform-data:
+    specifier: ^4.5.0
+    version: 4.5.0
+  waveform-node:
+    specifier: ^0.3.1
+    version: 0.3.1
   winston:
     specifier: ^3.12.0
     version: 3.12.0
@@ -1139,6 +1145,14 @@ packages:
   /vary@1.1.2:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
+    dev: false
+
+  /waveform-data@4.5.0:
+    resolution: {integrity: sha512-fLT8yLGUuVhDBMVVOD2AGqHlLLVT/zfGlSIKgfqMCwFJGtkvY9eEhu0EL9W55lFJQt4r53X5Ncj86ymTGJlJTA==}
+    dev: false
+
+  /waveform-node@0.3.1:
+    resolution: {integrity: sha512-eKacFAfdHWBNZz21xo5U2lzj+Dwj0oEhSv+1OUODPSCfFHW4qGHtWqnB5dPst6XgTr9qNwsp2BOGxxG8coX7Lg==}
     dev: false
 
   /winston-transport@4.7.0:
