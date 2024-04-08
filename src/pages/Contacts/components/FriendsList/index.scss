@@ -1,0 +1,34 @@
+@import "/src/styles/color";
+
+.friends-list {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    gap: 3px;
+    overflow: auto;
+    height: 100%;
+    --color-text: var(--color-black);
+    --color-unread-number: var(--color-white);
+    --color-unread-bg: var(--color-green-1);
+}
+
+.selected {
+    --color-friend-item-message:rgb(255,255,255);
+    --color-friend-item-user-name: rgb(255,255,255);
+    --color-text: var(--color-white);
+    --color-text-secondary: var(--color-white);
+    --color-unread-number: var(--color-friend-item-active);
+    --color-unread-bg: var(--color-white);
+    background-color: var(--color-friend-item-active) !important;
+}
+
+.list-move /* 对移动中的元素应用的过渡 */ {
+    transition: all 0.5s ease;
+}
+
+
+/* 确保将离开的元素从布局流中删除
+  以便能够正确地计算移动的动画。 */
+.list-leave-active {
+    position: absolute;
+}

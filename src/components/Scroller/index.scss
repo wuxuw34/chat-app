@@ -1,0 +1,20 @@
+.scroller{
+
+    scroll-behavior: smooth;
+    --scroll-color: rgba(0,0,0,0);
+
+
+    &:hover::-webkit-scrollbar-thumb{
+        --scroll-color:#0003;
+    }
+
+    &::-webkit-scrollbar{
+        width: 6px;
+        transition: visibility 0.3s ease-in-out;
+    }
+    &::-webkit-scrollbar-thumb{
+        background-color: var(--scroll-color);
+        border-radius: 3px;
+
+    }
+}

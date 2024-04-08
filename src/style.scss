@@ -1,0 +1,58 @@
+* {
+    padding: 0;
+    margin: 0;
+    font-weight: 400;
+    font-family: -apple-system,SF UI Text,Arial,PingFang SC,Hiragino Sans GB,Microsoft YaHei,WenQuanYi Micro Hei,sans-serif;
+}
+
+:root {
+    --border-radius: 6px;
+    font-size: 16px;
+    // 白色
+    --color-white: rgb(255, 255, 255);
+
+    // 黑色
+    --color-black: rgb(0, 0, 0);
+
+    // 绿色
+    --color-green-1: rgb(0, 199, 62);
+
+    // 灰色
+    --color-gray-1:#a8abb2;
+
+    // 蓝色
+    --color-blue-1:#1d90f5;
+
+    // 红色
+    --color-red-1:rgb(255, 51, 70);
+
+    & > body[theme='light'] {
+        --color-default: white;
+        --color-text: rgb(0, 0, 0);
+        --color-text-1: rgb(104, 108, 114);
+        --color-friend-item-hover: rgb(244, 244, 245);
+        --color-friend-item-active: rgb(51, 144, 236);
+        --color-friend-item-user-name:rgb(60,126,176);
+        --color-friend-item-message:rgb(112,117,121);
+        --font-placeholder:var(--color-gray-1);
+        --input-focus:var(--color-blue-1);
+    }
+
+    & > body[theme='dark'] {
+        --color-default: rgb(33, 33, 33);
+        --color-text: rgb(255, 255, 255);
+        --color-text-1: rgb(104, 108, 114);
+        --color-friend-item-hover: rgb(44, 44, 44);
+        --color-friend-item-active: rgb(244, 244, 245);
+    }
+}
+
+.app-wrapper {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.call-user{
+    color:var(--color-blue-1)
+}
