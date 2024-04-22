@@ -9,6 +9,8 @@ lerna-debug.log*
 
 node_modules
 server/node_modules
+server/static
+server/savePath
 dist
 dist-ssr
 *.local

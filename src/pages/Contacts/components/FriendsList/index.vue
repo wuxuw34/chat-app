@@ -42,7 +42,6 @@ onMounted(() => {
                         selected:value === friend.id
                     }"
                         @click="()=>{
-                            console.log('覅三级')
                         $emit('updateValue',friend.id)
                     }"
                 />

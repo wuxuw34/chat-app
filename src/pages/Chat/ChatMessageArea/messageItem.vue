@@ -11,6 +11,7 @@ import {useImageViewer} from "@/hooks/useImageViewer.ts";
 import useUserInfoStore from "@/stores/userInfoStore.ts";
 import Avatar from "@/components/Avatar/Avatar.vue";
 import AudioItem from "@/pages/Chat/ChatMessageArea/AudioItem.vue";
+import FileItem from "@/pages/Chat/ChatMessageArea/FileItem.vue";
 
 const props = defineProps<MessageType>()
 
@@ -24,7 +25,7 @@ const {open} =  useImageViewer()
 <template>
    <div  class="message-item-container" :style="{
        justifyContent:own?'end':'start'
-   }">
+   }" :message-id="id">
        <div v-if="!own" class="message-item-wrapper" >
 <!--           <div class="avatar">-->
 <!--               <img :src="config.server + 'api/static/avatars/default.jpg'" alt="头像"/>-->
@@ -41,6 +42,7 @@ const {open} =  useImageViewer()
                    {{ body?.data?.content }}
                    <ImageViewer v-if="body.type === MESSAGE_TYPE.PIC" :url="config.server + body.data.url" />
                    <AudioItem v-else-if="body.type === MESSAGE_TYPE.AUDIO" :url="config.server + body.data.url" />
+                   <FileItem v-else-if="body.type === MESSAGE_TYPE.FILE" :file-name="body.data.fileName" :file-size="body.data.fileSize" :url="body.data.url" />
                    <div v-else-if="body.type === MESSAGE_TYPE.CALL">
                         {{  }}
                     </div>
@@ -63,6 +65,7 @@ const {open} =  useImageViewer()
 
                    <ImageViewer v-if="body.type === MESSAGE_TYPE.PIC" :url="config.server + body.data.url" />
                    <AudioItem v-else-if="body.type === MESSAGE_TYPE.AUDIO" :url="config.server + body.data.url" />
+                   <FileItem v-else-if="body.type === MESSAGE_TYPE.FILE" :file-name="body.data.fileName" :file-size="body.data.fileSize" :url="body.data.url" />
                    <div class="time">
                        <span>{{ handleTime(time) }}</span>
                    </div>

@@ -4,19 +4,28 @@ import {usePeer} from "@/hooks/usePeer.ts";
 import useFriendsStore from "@/stores/friendsStore.ts";
 import friendsStore from "@/stores/friendsStore.ts";
 import Avatar from "@/components/Avatar/Avatar.vue";
-import {onMounted, ref, watch} from "vue";
+import {inject, onMounted, ref, watch} from "vue";
+import useWindowSize from "@/hooks/useWindowSize.ts";
+import {isMobile} from "@/utils/device.ts";
 
+const windowSize = useWindowSize()
 const peer = usePeer()
 const friendStore = useFriendsStore()
 const username = ref()
+const goBack = inject('goBack')
+const mobileMode = ref(false)
 
 
-onMounted(()=>{
+onMounted(() => {
     username.value = friendStore.getUsernameById(friendStore.selectedFriend)
 })
 
 watch(() => friendStore.selectedFriend, () => {
     username.value = friendStore.getUsernameById(friendStore.selectedFriend)
+})
+
+watch(() => windowSize.width.value, () => {
+    mobileMode.value = isMobile(windowSize.width.value)
 })
 
 function call() {
@@ -32,9 +41,22 @@ function revokeCall(uid: string) {
 <template>
     <div class="chat-header-container">
         <div class="info">
-            <avatar :id="friendStore.selectedFriend" :username="username"/>
+            <el-button
+                text
+                round
+                style="width: 24px;height: 24px"
+                @click="goBack"
+            >
+                <el-icon size="22">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+                        <path fill="black" d="M20 11H7.83l5.59-5.59L12 4l-8 8l8 8l1.41-1.41L7.83 13H20z"/>
+                    </svg>
+                </el-icon>
+            </el-button>
+            <avatar :id="friendStore.selectedFriend" style="height: 36px;width: 36px" :username="username"/>
             <div>
                 <div class="name">{{ username }}</div>
+                <el-text class="mx-1" type="primary">在线</el-text>
             </div>
         </div>
         <el-icon size="24" @click="call">
@@ -54,11 +76,13 @@ function revokeCall(uid: string) {
     justify-content: space-between;
     align-items: center;
 
-    .info{
+    .info {
         display: flex;
         flex-direction: row;
-        gap:6px;
-        .name{
+        gap: 6px;
+        align-items: center;
+
+        .name {
             font-weight: 500;
             unicode-bidi: plaintext;
         }

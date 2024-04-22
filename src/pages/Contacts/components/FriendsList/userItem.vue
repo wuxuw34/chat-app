@@ -2,9 +2,10 @@
 
 import {MessageType} from "@/type/message";
 import Avatar from "@/components/Avatar/Avatar.vue";
-import {ref, watch} from "vue";
+import {onMounted, ref, watch} from "vue";
 import {handleTime} from "@/utils/time.ts";
 import useFriendsStore from "@/stores/friendsStore.ts";
+import {MESSAGE_TYPE} from "@/enums";
 
 const props = defineProps<{
     message: MessageType,
@@ -16,16 +17,19 @@ const props = defineProps<{
 const time = ref()
 const friendStore = useFriendsStore()
 
-watch(() => props.message?.time, () => {
-    time.value = handleTime(Number(props.message.time))
+onMounted(() => {
+    watch(() => props.message?.time, () => {
+        time.value = handleTime(Number(props.message?.time || 0))
+    })
 })
+
 
 </script>
 
 <template>
-    <div class="list-item" v-wave>
+    <div class="list-item" v-wave :message-id="id">
         <a>
-            <avatar :id="id" :username="name" style="height: 98%;width:auto;font-size: 20px"/>
+            <avatar :id="id" :username="name" style="height: 42px;width: 42px;font-size: 20px"/>
             <div class="info">
                 <div class="info-row">
                     <div class="name">
@@ -43,13 +47,18 @@ watch(() => props.message?.time, () => {
                         <div class="sender-name">
                             {{ friendStore.getUsernameById(message?.senderId) }}
                         </div>
-                        <div class="colon">:</div>
+                        <div class="colon" v-show="message?.body">:</div>
                         <div class="message-body">
-                            {{ message?.body?.data.content }}
+                            <template v-if="message?.body?.type === MESSAGE_TYPE.TEXT">
+                                {{ message?.body?.data.content }}
+                            </template>
+                            <template v-if="message?.body?.type === MESSAGE_TYPE.FILE">
+                                [ 文件 ]
+                            </template>
                         </div>
                     </div>
                     <div class="unread">
-                        {{ 11 }}
+                        {{ 0 }}
                     </div>
                 </div>
             </div>
@@ -73,6 +82,7 @@ watch(() => props.message?.time, () => {
         padding: 0.5rem;
         box-sizing: border-box;
         display: flex;
+        align-items: center;
         caret-color: transparent;
         user-select: none;
         flex-direction: row;
@@ -88,7 +98,7 @@ watch(() => props.message?.time, () => {
             z-index: 1;
         }
 
-        & > .avator {
+        & > .avatar {
             height: 100%;
             z-index: 2;
 
@@ -105,10 +115,10 @@ watch(() => props.message?.time, () => {
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            flex: 1;
             height: 100%;
             padding: 0.25rem;
             box-sizing: border-box;
-            width: 100%;
             overflow: hidden;
 
             .info-row {

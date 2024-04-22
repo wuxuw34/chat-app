@@ -3,9 +3,10 @@ import {MESSAGE_TYPE} from "@/enums";
 type MessageBodyType = {
     type: MESSAGE_TYPE,
     data: {
-        url?: string,
-        content?: any,
-        callInfo?:any
+        url?: string, // 资源链接
+        content?: any, // 文本内容
+        callInfo?:any, // 音视频通话所携带的数据
+        fileInfo?:any // 文件数据
     }
 }
 

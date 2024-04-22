@@ -29,6 +29,8 @@ const recordTime = ref(0)
 let recordTimeTimer = null
 let flag = false // 是否仍在@
 let fileName = ''
+let MessageType = null
+
 const selectUserData = {
     startOffset: 0,
     node: null,
@@ -66,21 +68,18 @@ onMounted(() => {
     })
     onChange((files: File[]) => {
         const file = files[0][0]
-
         fileName = uuid()
-
-
         const arr = file.name.split(".")
-
         const type = arr[arr.length - 1]
-
         apis.upload({
             file: new File([file], fileName + '.' + type)
         })
         apis.sendMsg(setMessageContent({
-            type: MESSAGE_TYPE.PIC,
+            type: MessageType,
             data: {
-                file: fileName + '.' + type
+                file: fileName + '.' + type,
+                fileName:file.name,
+                fileSize:file.size
             }
         } as MessageBodyType, friendsStore.selectedFriend))
     })
@@ -246,7 +245,11 @@ function handleSendMessage() {
             </div>
         </el-popover>
         <!--   发送图片     -->
-        <svg @click="()=>addFile({type:'images/*'})" xmlns="http://www.w3.org/2000/svg" width="24px" height="24px"
+        <svg @click="()=>{
+            MessageType = MESSAGE_TYPE.PIC
+            addFile({type:'images/*'})
+
+        }" xmlns="http://www.w3.org/2000/svg" width="24px" height="24px"
              viewBox="0 0 48 48">
             <g fill="none" stroke="#000" stroke-linejoin="round" stroke-width="4">
                 <path stroke-linecap="round"
@@ -260,7 +263,10 @@ function handleSendMessage() {
             </g>
         </svg>
         <!--        文件 -->
-        <svg @click="()=>addFile()" xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 48 48">
+        <svg @click="()=>{
+            MessageType = MESSAGE_TYPE.FILE
+            addFile()
+        }" xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 48 48">
             <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="4">
                 <path fill="#2f88ff" stroke="#000"
                       d="M7 6C7 4.89543 7.89543 4 9 4H39C40.1046 4 41 4.89543 41 6V42C41 43.1046 40.1046 44 39 44H9C7.89543 44 7 43.1046 7 42V6Z"/>

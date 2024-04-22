@@ -2,29 +2,30 @@ import worker from "@/utils/webworker.ts";
 import apis from "@/services/apis.ts";
 import {setMessageContent} from "@/utils/messageUtils.ts";
 import {MESSAGE_TYPE} from "@/enums";
-import {MessageType} from "@/type/message";
 
 type StreamEventFnType = (stream:MediaStream,id:string)=>void
 
-class Peer {
+interface IRTCPeerConnection{
+    connect:(id:string)=>void;
+    initPeerConnection:(id:string)=>void;
+    createOffer:(id: string,mediaConstraints:MediaStreamConstraints)=>void;
+    setAnswer:(id: string, sdp: RTCSessionDescription)=>void;
+    createAnswer:(id: string, sdp: RTCSessionDescription)=>void;
+    setCandidate:(id: string, candidate: RTCIceCandidate)=>void;
+    revokeCall:(uid:string)=>void;
+}
 
-    peers = new Map<string, RTCPeerConnection>()
-    events = new Set()
+class Peer implements IRTCPeerConnection{
+
+    peers = new Map<string, RTCPeerConnection>() // 多人音视频聊天时每个RTCPeerConnection连接
+    events = new Set() // 消息触发事件集合
 
     constructor() {
-        this.init()
-    }
 
-    private init() {
-        // worker.addEventListener('message',(e:MessageEvent)=>{
-        //     const data = e.data
-        //     console.log('收到的消息',data)
-        // })
     }
 
     connect(id: string) {
         this.initPeerConnection(id)
-
     }
 
 
@@ -36,7 +37,6 @@ class Peer {
         })
         this.peers.set(id, peer)
         peer.onicecandidate = (e: RTCPeerConnectionIceEvent) => {
-            console.log('交换candidate', e.candidate)
             if (e.candidate) {
                 apis.sendMsg(setMessageContent({
                     data: {
@@ -54,14 +54,13 @@ class Peer {
         }
     }
 
-    createOffer(id: string) {
-        console.log('准备创建offer', id)
+    createOffer(id: string,mediaConstraints:MediaStreamConstraints={
+        video:true,
+        audio:true
+    }) {
         this.initPeerConnection(id)
         const peer = this.peers.get(id)
-        navigator.mediaDevices.getUserMedia({
-            video: true,
-            audio: false
-        }).then(stream => {
+        navigator.mediaDevices.getUserMedia(mediaConstraints).then(stream => {
 
             return stream.getTracks().forEach(track => peer?.addTrack(track, stream))
         }).then(() => {
@@ -69,7 +68,6 @@ class Peer {
         }).then(r => {
             return peer?.setLocalDescription(r)
         }).then(() => {
-            console.log('创建好offer', peer?.localDescription)
             apis.sendMsg(setMessageContent({
                 data: {
                     sdp: peer?.localDescription
@@ -81,13 +79,11 @@ class Peer {
 
     setAnswer(id: string, sdp: RTCSessionDescription) {
         const peer = this.peers.get(id)
-        console.log('设置answer', id, sdp)
         peer?.setRemoteDescription(sdp)
     }
 
 
     createAnswer(id: string, sdp: RTCSessionDescription) {
-        console.log('准备创建answer', id)
         const peer = this.peers.get(id)
         navigator.mediaDevices.getUserMedia({
             video: true,
@@ -134,9 +130,9 @@ class Peer {
         },uid))
     }
 
-    private handleIceCandidateError() {
-
-    }
+    // private handleIceCandidateError() {
+    //
+    // }
 
     onTrack(fn:StreamEventFnType) {
         this.events.add(fn)

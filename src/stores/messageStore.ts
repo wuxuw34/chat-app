@@ -72,7 +72,7 @@ export const useMessageStore = defineStore('message', () => {
                                     usepeer.setAnswer(senderId, data.body.data.sdp)
                                 }
                                 console.log('正在打电话中....')
-                            }else{
+                            }else if(data.body.data.content || data.body.data.url){
                                 const m = messageMap.value?.get(id) || []
                                 m.push(data)
                             }

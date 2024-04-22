@@ -19,4 +19,5 @@ export enum MESSAGE_TYPE  {
     REVOKE_CALL, // 撤回电话视频
     HANG_UP, // 挂断
     UNANSWERED, // 未接听
+    FILE
 }

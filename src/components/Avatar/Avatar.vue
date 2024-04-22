@@ -1,14 +1,32 @@
 <script setup lang="ts">
 
 import {getUserNameColorById} from "@/utils/color.ts";
-import {watch} from "vue";
+import {onMounted, ref, watch} from "vue";
 
-defineProps<{
+const props = defineProps<{
     avatar?: string,
     username?: string,
     id:string
 }>()
+const username = ref()
 
+onMounted(()=>{
+    setUsername()
+    watch(()=>props.username,()=>{
+        setUsername()
+    })
+})
+
+function setUsername(){
+    if(!props.username){
+        return
+    }
+    if(/[\u4e00-\u9fa5]/.test(props.username[0])){
+        username.value = props.username[0]
+    }else{
+        username.value = props.username.slice(0,2)
+    }
+}
 
 </script>
 
@@ -17,7 +35,7 @@ defineProps<{
         '--color':getUserNameColorById(Number(id))
     }">
         <div v-if="avatar" ></div>
-        <div v-else class="text"> {{ username?.slice(0,1) }} </div>
+        <div v-else class="text"> {{ username }} </div>
     </div>
 </template>
 

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 
 import appConfig from "@/utils/config.ts";
+import Avatar from "@/components/Avatar/Avatar.vue";
 
 defineProps<{
     avatar?:string,
@@ -23,9 +24,7 @@ defineEmits<{
 <template>
   <div class="user-item-wrapper">
       <div class="user-info">
-          <div class="avatar">
-              <img :src="appConfig.server + 'api' + avatar" alt="头像" />
-          </div>
+          <avatar :id="account" :username="username" style="height: 42px;width: 42px;font-size: 20px"/>
           <div class="other">
               <div class="username">
                   {{ username }}

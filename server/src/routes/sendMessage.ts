@@ -18,17 +18,18 @@ export default {
             message!.token = null
         }
         if (message.body.data.callInfo) {
-            await websocketEvents.pushMessage(message,false)
+            await websocketEvents.pushMessage(message, false)
         } else {
             if (message.body.data.file) {
                 message.body.data.url = 'api/static/' + message.body.data.file
                 delete message.body.data.file
             }
-            res = await insertMessage(message)
-            res && await websocketEvents.pushMessage(message)
+            if (message.body.data.url || message.body.data.content) {
+                res = await insertMessage(message)
+            }
+            await websocketEvents.pushMessage(message)
         }
         if (res) {
-
             ctx.body = {
                 state: 1,
                 msg: '发送成功'

@@ -2,11 +2,12 @@
 import {md5} from "js-md5";
 import {onMounted, ref, watch} from "vue";
 import apis from "@/services/apis.ts";
-import {ElNotification, TabsPaneContext} from 'element-plus'
+import {ElNotification, FormRules, TabsPaneContext} from 'element-plus'
 import useWindowSize from "@/hooks/useWindowSize.ts";
 import TypingVue from '@/components/Typing/index.vue'
 import {useRouter} from "vue-router";
 import {useStorage} from "@/hooks/useStorage.ts";
+import {checkEmail, checkPasswordStrength} from "@/utils/regexp.ts";
 
 const isRegister = ref<boolean>(false)
 const loginInfo = ref({
@@ -17,13 +18,81 @@ const activeName = ref('login')
 const registerInfo = ref({
     email: '',
     password: '',
-    rePassword: ''
+    rePassword: '',
+    username: ''
 })
 const {width} = useWindowSize()
 const isPC = ref<boolean>(true)
 const tokenStorage = useStorage<string>('token')
 const router = useRouter()
 const texts = ['Hi, Friend!', 'Welcome Back!']
+const registerRules: FormRules = {
+    username: [
+        {
+            validator: usernameValidator,
+            trigger: "blur"
+        }
+    ],
+    email: [
+        {
+            validator: emailValidator,
+            trigger: 'blur'
+        }
+    ],
+    password:[
+        {
+            validator: passwordValidator,
+            trigger: 'blur'
+        }
+    ],
+    rePassword:[
+        {
+            validator: rePasswordValidator,
+            trigger: 'blur'
+        }
+    ],
+}
+
+function emailValidator(rule: any, value: any, callback: any) {
+    if (!checkEmail(value)) {
+        callback(new Error("邮箱格式错误!"))
+    } else if (!value) {
+        callback(new Error("请输入邮箱"))
+    } else {
+        callback()
+    }
+}
+
+function usernameValidator(rule: any, value: any, callback: any) {
+    if (!value) {
+        callback(new Error("请输入用户名"))
+    } else {
+        callback()
+    }
+}
+
+function passwordValidator(rule: any, value: any, callback: any){
+    if(!value){
+        callback(new Error("请输入密码"))
+    }else if(value.length < 8){
+        callback(new Error("密码长度过短"))
+    } else if(checkPasswordStrength(value) < 3){
+        callback(new Error("当前密码强度过弱"))
+    }else{
+        callback()
+    }
+}
+
+function rePasswordValidator(rule: any, value: any, callback: any){
+    console.log(value)
+    if(!value){
+        callback(new Error("请重复输入密码"))
+    }else if(value !== registerInfo.value.password){
+        callback(new Error("两次密码输入不一致"))
+    }else{
+        callback()
+    }
+}
 
 onMounted(() => {
     isPC.value = (width.value > 600)
@@ -71,10 +140,12 @@ function register() {
         email: registerInfo.value.email,
         password: md5(registerInfo.value.password)
     }).then(res => {
-        const {state, msg} = res.data
+        const {state, msg,data} = res.data
         if (state) {
             ElNotification.success({
-                title: msg
+                title: msg,
+                duration:10000,
+                message:`您的账号为${data.account}`
             })
         } else {
             ElNotification.error({
@@ -120,17 +191,22 @@ function register() {
                             <el-form
                                     label-position="top"
                                     style="width: 100%;"
+                                    :rules="registerRules"
+                                    :model="registerInfo"
                             >
-                                <el-form-item label="邮箱">
+                                <el-form-item label="用户名" prop="username">
+                                    <el-input placeholder="用户名" v-model="registerInfo.username"></el-input>
+                                </el-form-item>
+                                <el-form-item label="邮箱" prop="email">
                                     <el-input placeholder="邮箱" v-model="registerInfo.email"></el-input>
                                 </el-form-item>
-                                <el-form-item label="密码">
+                                <el-form-item label="密码" prop="password">
                                     <el-input type="password" placeholder="密码"
-                                              v-model="registerInfo.password"></el-input>
+                                              v-model="registerInfo.password" show-password></el-input>
                                 </el-form-item>
-                                <el-form-item label="重复输入密码">
+                                <el-form-item label="重复输入密码" prop="rePassword">
                                     <el-input type="password" placeholder="重复输入密码"
-                                              v-model="registerInfo.rePassword"></el-input>
+                                              v-model="registerInfo.rePassword" show-password></el-input>
                                 </el-form-item>
                             </el-form>
                             <el-button

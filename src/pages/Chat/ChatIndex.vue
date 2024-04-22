@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Footer from '@/components/Footer/index.vue'
 import Contacts from './Contacts/Contacts.vue'
-import {defineModel, onMounted, ref, watch} from "vue";
+import {defineModel, onMounted, ref} from "vue";
 import VirtualList from '@/components/VirtualList/index.vue'
 import ChatInput from '@/pages/Chat/ChatInput/index.vue'
 import ChatMessageArea from '@/pages/Chat/ChatMessageArea/index.vue'
@@ -9,25 +9,13 @@ import apis from "@/services/apis.ts";
 import useFriendsStore from "@/stores/friendsStore.ts";
 import useUserInfoStore from "@/stores/userInfoStore.ts";
 import {useMessageStore} from "@/stores/messageStore.ts";
-import {usePeer} from "@/hooks/usePeer.ts";
 import ChatHeader from "@/pages/Chat/CharHeader/ChatHeader.vue";
-import Sider from "@/pages/Sider/Sider.vue";
-import TransitionVue from '@/components/Transition/Transition.vue'
-import ChatIndex from "@/pages/Chat/ChatIndex.vue";
-import useWindowSize from "@/hooks/useWindowSize.ts";
-import {isMobile} from "@/utils/device.ts";
 
-let flag = true
 const friendsStore = useFriendsStore()
 const userinfoStore = useUserInfoStore()
 const messageStore = useMessageStore()
-const transitionElement = ref()
-const usepeer = usePeer()
-const windowSize = useWindowSize()
 
 onMounted(() => {
-    handleWindowSizeChange()
-    theme()
     userinfoStore.getUserInfo()
     getFriendListFn()
     apis.getMessageList({
@@ -44,14 +32,6 @@ onMounted(() => {
             }
         }
     })
-    watch(()=>windowSize.width.value,()=>{
-        handleWindowSizeChange()
-    })
-    watch(()=>friendsStore.selectedFriend,()=>{
-        if(!transitionElement.value){
-            transitionElement.value = ChatIndex
-        }
-    })
 })
 
 function getFriendListFn() {
@@ -61,33 +41,17 @@ function getFriendListFn() {
     })
 }
 
-function theme() {
-    document.body.setAttribute('theme', flag ? 'light' : 'dark')
-    flag = !flag
-}
 
-function handleWindowSizeChange(){
-    if(isMobile(windowSize.width.value)){
-        transitionElement.value = null
-    }else{
-        transitionElement.value = ChatIndex
-    }
-}
 
 </script>
 
 <template>
-    <div class="home">
-        <div class="message-wrapper">
-            <TransitionVue
-                    v-model:is="transitionElement"
-                    :isResponse="true"
-            >
-                <Sider />
-            </TransitionVue>
-        </div>
-        <Footer/>
+    <div style="display: flex;flex-direction: column;height: 100%">
+        <ChatHeader v-if="friendsStore.selectedFriend"/>
+        <ChatMessageArea/>
+        <ChatInput/>
     </div>
+
 </template>
 
-<style src="./index.scss" scoped lang="scss"></style>
+<style  scoped lang="scss"></style>
