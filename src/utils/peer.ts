@@ -3,19 +3,19 @@ import apis from "@/services/apis.ts";
 import {setMessageContent} from "@/utils/messageUtils.ts";
 import {MESSAGE_TYPE} from "@/enums";
 
-type StreamEventFnType = (stream:MediaStream,id:string)=>void
+type StreamEventFnType = (stream: MediaStream, id: string) => void
 
-interface IRTCPeerConnection{
-    connect:(id:string)=>void;
-    initPeerConnection:(id:string)=>void;
-    createOffer:(id: string,mediaConstraints:MediaStreamConstraints)=>void;
-    setAnswer:(id: string, sdp: RTCSessionDescription)=>void;
-    createAnswer:(id: string, sdp: RTCSessionDescription)=>void;
-    setCandidate:(id: string, candidate: RTCIceCandidate)=>void;
-    revokeCall:(uid:string)=>void;
+interface IRTCPeerConnection {
+    connect: (id: string) => void;
+    initPeerConnection: (id: string) => void;
+    createOffer: (id: string, mediaConstraints: MediaStreamConstraints) => void;
+    setAnswer: (id: string, sdp: RTCSessionDescription) => void;
+    createAnswer: (id: string, sdp: RTCSessionDescription) => void;
+    setCandidate: (id: string, candidate: RTCIceCandidate) => void;
+    revokeCall: (uid: string) => void;
 }
 
-class Peer implements IRTCPeerConnection{
+class Peer implements IRTCPeerConnection {
 
     peers = new Map<string, RTCPeerConnection>() // 多人音视频聊天时每个RTCPeerConnection连接
     events = new Set() // 消息触发事件集合
@@ -49,14 +49,14 @@ class Peer implements IRTCPeerConnection{
         }
         peer.ontrack = (e: RTCTrackEvent) => {
             console.log('流', e.streams);
-            this.trigger(e.streams[0],id)
+            this.trigger(e.streams[0], id)
             // (document.getElementById('video') as HTMLVideoElement)!.srcObject = e.streams[0]
         }
     }
 
-    createOffer(id: string,mediaConstraints:MediaStreamConstraints={
-        video:true,
-        audio:true
+    createOffer(id: string, mediaConstraints: MediaStreamConstraints = {
+        video: true,
+        audio: true
     }) {
         this.initPeerConnection(id)
         const peer = this.peers.get(id)
@@ -91,7 +91,7 @@ class Peer implements IRTCPeerConnection{
         }).then(stream => {
             // (document.getElementById('video') as HTMLVideoElement).srcObject = stream
             return stream.getTracks().forEach(track => peer?.addTrack(track, stream))
-        }).then(()=>{
+        }).then(() => {
             return peer?.setRemoteDescription(sdp)
         }).then(() => {
             return peer?.createAnswer()
@@ -114,37 +114,50 @@ class Peer implements IRTCPeerConnection{
         peer?.addIceCandidate(candidate)
     }
 
-    revokeCall(uid:string){
+    revokeCall(uid: string) {
         let peer = this.peers.get(uid)
         peer!.ontrack = null
         peer!.onicecandidate = null
 
         peer!.close()
-        peer = undefined
+        peer = null
         this.peers.delete(uid)
+        this.peers.clear()
         worker.postMessage(setMessageContent({
-            data:{
+            data: {},
+            type: MESSAGE_TYPE.REVOKE_CALL
+        }, uid))
+    }
 
-            },
-            type:MESSAGE_TYPE.REVOKE_CALL
-        },uid))
+    closeAll() {
+        this.peers.forEach(peer => {
+            peer.ontrack = null
+            peer.onicecandidate = null
+            peer.close()
+            peer = null
+        })
+        this.peers.clear()
     }
 
     // private handleIceCandidateError() {
     //
     // }
 
-    onTrack(fn:StreamEventFnType) {
+    onTrack(fn: StreamEventFnType) {
         this.events.add(fn)
     }
 
-    private trigger(stream:MediaStream,uid:string) {
-        Promise.all(Array.from(this.events).map((fn:any)=>{
-            return new Promise((resolve)=>{
-                fn(stream,uid)
+    private trigger(stream: MediaStream, uid: string) {
+        Promise.all(Array.from(this.events).map((fn: any) => {
+            return new Promise((resolve) => {
+                fn(stream, uid)
                 resolve(null)
             })
         }))
+    }
+
+    mute(){
+
     }
 
 }

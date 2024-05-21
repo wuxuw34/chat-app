@@ -14,7 +14,12 @@ export default {
         if (query.q) {
             // 关键字查询用户
             const queryResults = await queryUserByKeyWord(query.q as string) as UserType[]
-            const res = queryResults.map(item => {
+
+
+
+            const res = queryResults.filter(item=>{
+                return user_id !== item.id
+            }).map(item => {
                 item.avatar = !item.avatar ? '/static/avatars/default.jpg' : item.avatar
                 return item
             })
@@ -27,6 +32,9 @@ export default {
         } else if(query.getUserInfo)  {
             // 获取用户信息
             const userInfo = await getUserInfoByAccount(user_id)
+            console.log(userInfo)
+
+            userInfo.id = String(userInfo.id)
 
             ctx.body = createRequestResult(1,'获取成功',userInfo)
         }

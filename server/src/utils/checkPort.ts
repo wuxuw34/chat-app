@@ -1,4 +1,5 @@
 import * as net from "net";
+import {exec} from "node:child_process";
 
 export default function checkPort(port: number): Promise<number> {
     const check = (port: number) => {
@@ -10,6 +11,9 @@ export default function checkPort(port: number): Promise<number> {
             })
             server.on('error', (err: Error) => {
                 console.log('出错',err)
+                // exec('kill'+port,()=>{
+                //     resolve(port)
+                // })
                 resolve(err)
             })
         })

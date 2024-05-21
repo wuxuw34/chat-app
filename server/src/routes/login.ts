@@ -22,6 +22,7 @@ export default {
             const t =  token({
                 id: res
             })
+            console.log(t.length)
             await insertTokenIntoLogin(t,flag?res as string:account)
             ctx.body = {
                 state: 1,

@@ -17,7 +17,6 @@ const friendsList = computed(() => {
             res.push(i)
         }
     }
-    console.log(res)
     return res
 })
 

@@ -5,21 +5,25 @@ export default {
     fn: async (ctx: any, next: Next) => {
         const {
             email,
-            password
+            password,
+            username
         } = ctx.request.body
-        console.log('用户注册', email, password)
+        console.log('用户注册', email, password,username)
 
         try {
             // 检查是否已经注册
-            const hasEmailRes = await query('select * from user where email = ?', [email]) as any
-            if (hasEmailRes.results.length) {
+            const hasEmailRes = await query('select * from users where email = ?', [email]) as any
+            console.log(hasEmailRes)
+            if (hasEmailRes && hasEmailRes[0].length) {
                 ctx.body = {
                     state: 0,
                     msg: '邮箱已存在',
                 }
             } else {
-                const res = await query('insert into user (password,email) values (?,?)', [password, email]) as any
-                const id = res.results.insertId
+                const res = await query('insert into users (username,password,email) values (?,?,?)', [username,password, email]) as any
+
+                console.log(res[0])
+                const id = res[0].insertId
                 ctx.body = {
                     state: 1,
                     msg: '注册成功',

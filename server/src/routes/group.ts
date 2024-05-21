@@ -18,9 +18,8 @@ export default {
                 console.log('插入结果',res)
 
                 if(res){
-                    const id = res.results.insertId
+                    const id = res[0].insertId
 
-                    console.log('id',id)
 
                     // 加入群聊
                     await requestAddFriend(user_id,id)

@@ -5,15 +5,33 @@ import {MESSAGE_TYPE, MessageType} from "../types/message";
  * @param m
  * @param user_id
  * @param pageSize
+ * @param mid
  */
-export function handleMessageById(m: MessageType[], user_id: string, pageSize: number = 20) {
+export function handleMessageById(m: MessageType[], user_id: string, pageSize: number = 20, mid?: string) {
 
     const map = new Map<string, MessageType[]>()
+    let flag = 0
 
 
     for (let i = m.length - 1; i >= 0; i--) {
         const message = m[i]
-        const id = message.senderId === user_id ? message.receiver : message.senderId
+        const id = message.sender_id === user_id ? message.receiver_id : message.sender_id
+        const _mid = message.id
+
+        if (mid) {
+            if (String(_mid) === mid) {
+                flag++
+            }
+            if (!flag) {
+                continue
+            }
+            if (flag) {
+                flag++
+            }
+            if(flag<=2){
+                continue
+            }
+        }
 
         if (!map.has(id)) {
             map.set(id, [])

@@ -18,6 +18,7 @@ const mobileMode = ref(false)
 
 onMounted(() => {
     username.value = friendStore.getUsernameById(friendStore.selectedFriend)
+    mobileMode.value = isMobile(windowSize.width.value)
 })
 
 watch(() => friendStore.selectedFriend, () => {
@@ -36,6 +37,11 @@ function revokeCall(uid: string) {
     peer.revokeCall(uid)
 }
 
+function handleGoBack(){
+    friendStore.selectedFriend = ''
+    goBack()
+}
+
 </script>
 
 <template>
@@ -45,12 +51,11 @@ function revokeCall(uid: string) {
                 text
                 round
                 style="width: 24px;height: 24px"
-                @click="goBack"
+                @click="handleGoBack"
+                v-show="mobileMode"
             >
                 <el-icon size="22">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
-                        <path fill="black" d="M20 11H7.83l5.59-5.59L12 4l-8 8l8 8l1.41-1.41L7.83 13H20z"/>
-                    </svg>
+                    <img src="@/assets/svgs/back.svg" alt="返回" />
                 </el-icon>
             </el-button>
             <avatar :id="friendStore.selectedFriend" style="height: 36px;width: 36px" :username="username"/>

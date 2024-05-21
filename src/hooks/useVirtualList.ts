@@ -1,4 +1,4 @@
-import {computed, onMounted, ref, nextTick} from "vue";
+import {computed, onMounted, ref, nextTick, Ref, watch} from "vue";
 
 export type virtualListOptionsType = {
     itemHeight: number,
@@ -6,12 +6,9 @@ export type virtualListOptionsType = {
     reverse?: boolean
 }
 
-export function useVirtualList<T>(data: T[], options?: virtualListOptionsType) {
+export function useVirtualList<T>(data: Ref<any[]>, options?: virtualListOptionsType) {
 
-    const currentData = ref<T[]>([])
-    data.forEach((item: any, index: number) => {
-        item._index = index
-    })
+    const currentdata = ref<T[]>([])
     let range = {
         from: 0,
         to: 0
@@ -28,9 +25,17 @@ export function useVirtualList<T>(data: T[], options?: virtualListOptionsType) {
 
     onMounted(() => {
         init()
+        watch(()=>data.value,()=>{
+            init()
+        })
     })
 
     function init() {
+
+        data.value.forEach((item: any, index: number) => {
+            item._index = index
+        })
+        console.log('初始化',data.value)
         containerHeight = container.value!.clientHeight
         calculateRange(0)
     }
@@ -41,13 +46,14 @@ export function useVirtualList<T>(data: T[], options?: virtualListOptionsType) {
     function calculateRange(scrollTop: number) {
         range.from = getOffsetTopIndex(scrollTop)
         range.to = getViewOpacityIndex() + range.from * 2
-        currentData.value = data.slice(range.from, range.to) as T[]
+        currentdata.value = data.value.slice(range.from, range.to) as any[]
         offsetTop.value = getMarginTop()
-        height.value = (data.length - range.from) * itemHeight
+        height.value = (data.value.length - range.from) * itemHeight
+
     }
 
     function getSize(i: number) {
-        return sizes.get(data[i]._index)
+        return sizes.get(data.value[i]._index)
     }
 
     function setSize(i: number, h: number) {
@@ -112,7 +118,7 @@ export function useVirtualList<T>(data: T[], options?: virtualListOptionsType) {
 
 
     return {
-        currentData,
+        currentdata,
         scrollProps: computed(() => {
             return {
                 ref: scroller,

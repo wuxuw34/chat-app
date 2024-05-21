@@ -4,7 +4,7 @@ import useFriendsStore from "@/stores/friendsStore.ts";
 import {computed, onMounted, ref} from "vue";
 import Scroller from '@/components/Scroller/index.vue'
 import {FriendType} from "@/type/user";
-import VirtualList from '@/components/VirtualList/index.vue'
+import VirtualList from '@/components/VirtualList/VirtualList.vue'
 
 const props = defineProps<{
     list: FriendType[],
@@ -18,8 +18,6 @@ const selectItem = ref<string>('')
 onMounted(() => {
     selectItem.value = props.list.length?props.list[0].id:'-1'
 })
-
-
 
 
 </script>

@@ -15,7 +15,7 @@ const isView = ref<boolean>(false)
 const {open,close} = useImageViewer()
 
 onMounted(()=>{
-    console.log(open,close)
+
 
 })
 

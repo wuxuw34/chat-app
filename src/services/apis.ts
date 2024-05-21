@@ -3,9 +3,9 @@ import axiosIns from "@/services/request.ts";
 import {useStorage} from "@/hooks/useStorage.ts";
 import {setMessageContent} from "@/utils/messageUtils.ts";
 import {MESSAGE_TYPE} from "@/enums";
+import useFriendsStore from "@/stores/friendsStore.ts";
 
 const tokenStorage = useStorage('token')
-
 const getRequest = <T>(url:string,config?:any)=>{
     const _config = config?config:{}
     _config.token = tokenStorage.value
@@ -48,6 +48,14 @@ export default {
             }
         }
     },id)),
+    hangup:(id:string)=>postRequest(urls.sendMsg,setMessageContent({
+        type:MESSAGE_TYPE.HANG_UP,
+        data:{
+            callInfo: {
+                callerId:id
+            }
+        }
+    },id)),
     answer:(callerId:string,sdp:any)=>postRequest(urls.sendMsg,setMessageContent({
         type:MESSAGE_TYPE.HANG_UP,
         data:{
@@ -57,4 +65,16 @@ export default {
             }
         }
     },callerId)),
+    getHistoryMessage:(params:any)=>{
+        params.type = 'history'
+        const friendStore = useFriendsStore()
+        params.friend_id = friendStore.selectedFriend
+        return getRequest(urls.message,params)
+    },
+    notification:(params:any)=>getRequest(urls.notification,params),
+    recall:(mid:string)=>{
+      return  postRequest(urls.recall,{
+          mid
+      })
+    }
 }

@@ -1,6 +1,6 @@
 
 const appConfig = {
-    server:'http://localhost:8080/'
+    server:'http://192.168.31.196:8080/'
 }
 
 export default appConfig

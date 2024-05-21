@@ -1,5 +1,5 @@
 export class UserSocket{
-    userId:number|null = null
+    userId:string|null = null
     token:string|null = null
     status:SOCKET_STATUS = SOCKET_STATUS.OFFLINE
     socket:Socket|null = null

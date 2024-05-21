@@ -25,6 +25,7 @@ const useFriendsStore = defineStore('friends', () => {
         if(!friendsList.value){
             friendsList.value = new Map()
         }
+        friendsList.value?.clear()
         friends.forEach(friend => {
             friend.id = friend.id.toString()
             friendsList.value!.set(friend.id,friend)
@@ -54,7 +55,8 @@ const useFriendsStore = defineStore('friends', () => {
     }
 
     function getUsernameById(id:string){
-        if(id === userinfo.info.id){
+        id = String(id)
+        if(id == userinfo.info.id){
             return userinfo.info.username
         }
         let username = friendsList.value?.get(id)?.username
@@ -65,12 +67,17 @@ const useFriendsStore = defineStore('friends', () => {
     }
 
     function isGroup(id:string){
-        return friendsList.value?.get(id)?.isGroup
+        return friendsList.value?.get(id)?.is_group
+    }
+
+    function addFriend(friend:FriendType){
+        console.log(friend)
+        friendsList.value?.set(friend.id,friend)
     }
 
     return {
         friendsList,selectedFriend, initFriendsList,updateSelectedFriend,getUsernameByGroup,isGroup,
-        getUsernameById,setLastMessage
+        getUsernameById,setLastMessage,addFriend
     }
 
 })

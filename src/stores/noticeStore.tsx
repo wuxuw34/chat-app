@@ -4,8 +4,15 @@ import {ElButton, ElNotification, ElText, ElProgress} from 'element-plus'
 import styles from './styles/notice.module.scss'
 import {MESSAGE_TYPE} from "@/enums";
 import apis from "@/services/apis.ts";
+import useFriendsStore from "@/stores/friendsStore.ts";
 
-const AddFriendNoticeItem = defineComponent({
+export enum NOTIFICATION_TYPE  {
+    ADD_FRIEND
+}
+
+
+
+export const AddFriendNoticeItem = defineComponent({
     props: {
         username: String,
         confirm: Function,
@@ -13,7 +20,6 @@ const AddFriendNoticeItem = defineComponent({
         id:Number
     },
     setup(props, _) {
-        console.log(props)
         return () => <div class={styles['add-friend-notice-item']}>
             <div>
                 <ElText class="mx-1" type="primary">{props.username}</ElText>
@@ -34,14 +40,20 @@ const AddFriendNoticeItem = defineComponent({
     style: {}
 })
 
-const events = {
-    [MESSAGE_TYPE.ADD_FRIEND]: {
+export const events = {
+    [NOTIFICATION_TYPE.ADD_FRIEND]: {
         confirm: (id:number) => {
             apis.friend({
                 type:'add_friend_confirm',
                 data:{
                     result:1,
                     friend_id:id
+                }
+            }).then(res=>{
+                const {data} = res
+                const friendsStore = useFriendsStore()
+                if(data.state){
+                    friendsStore.addFriend(data.data.friend)
                 }
             })
         },
@@ -55,19 +67,22 @@ export function useNoticeStore() {
 
     const noticeList = ref<any[]>([])
 
-    function addNotice(message: MessageType, temporary: boolean = false) {
-        const type = message.body.type
+    function addNotice(type: NOTIFICATION_TYPE,content:any, temporary: boolean = false) {
 
+        noticeList.value.push({
+            type:type,
+            content:content
+        })
         switch (type) {
-            case MESSAGE_TYPE.ADD_FRIEND: {
+            case NOTIFICATION_TYPE.ADD_FRIEND: {
                 ElNotification.success({
                     title: '好友请求',
                     duration: 5000,
                     message: h(AddFriendNoticeItem, {
-                        username: message.body.data.username,
-                        id:message.senderId,
-                        confirm: events[message.body.type]['confirm'],
-                        cancel: events[message.body.type]['cancel']
+                        username: content.username,
+                        id:content.sender_id,
+                        confirm: events[type]['confirm'],
+                        cancel: events[type]['cancel']
                     })
                 })
                 break

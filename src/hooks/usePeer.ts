@@ -40,7 +40,6 @@ export function usePeer() {
         nextTick(() => {
             op.revoke = revokeCall
             callRef.value.open(_id, isAnswer)
-
         })
     }
 
@@ -48,7 +47,6 @@ export function usePeer() {
         peer.createOffer(_id)
         peer.onTrack((stream, id) => {
             callRef.value.setStream(stream)
-            console.log('触发')
         })
     }
 
@@ -69,15 +67,21 @@ export function usePeer() {
     }
 
     function revokeCall(uid: string) {
-        console.log('测小')
         peer.revokeCall(uid)
+        console.log('挂断')
     }
+
 
     function setAnswerCallFn(answer: any) {
         op.answer = answer
     }
 
+    function closeCall() {
+        callRef.value.close()
+        peer.closeAll()
+    }
+
     return {
-        connect, createOffer, createAnswer, setCandidate, setAnswer, revokeCall, setAnswerCallFn
+        connect, createOffer, createAnswer, setCandidate, setAnswer, revokeCall, setAnswerCallFn, closeCall
     }
 }

@@ -10,5 +10,7 @@ export default {
     friend:server+'/api/friend',
     group:server+'/api/group',
     getUserInfo:server+'/api/userinfo',
-    upload:server+'/api/upload'
+    upload:server+'/api/upload',
+    notification:server+'/api/notification',
+    recall:server+'/api/recall'
 }

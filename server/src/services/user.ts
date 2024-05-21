@@ -10,10 +10,10 @@ import logger from "../utils/logger";
  */
 export function checkUserById(account: string, password: string) {
     return new Promise((resolve) => {
-        query('select * from user where id = ? and password = ?', [account, password]).then((result: any, fields?: FieldInfo[]) => {
-            if (result.results.length !== 0) {
-                resolve(result.results[0])
-            }else{
+        query('select * from users where id = ? and password = ?', [account, password]).then((result: any, fields?: FieldInfo[]) => {
+            if (result[0].length !== 0) {
+                resolve(result[0][0])
+            } else {
                 resolve(0)
             }
         })
@@ -22,12 +22,12 @@ export function checkUserById(account: string, password: string) {
 
 export function checkUserByEmail(account: string, password: string) {
     return new Promise((resolve) => {
-        query('select * from user where email = ? and password = ?', [account, password]).then((result: any, fields?: FieldInfo[]) => {
+        query('select * from users where email = ? and password = ?', [account, password]).then((result: any, fields?: FieldInfo[]) => {
 
-            if (result.results.length !== 0) {
-                logger.info(`账号${account}的id为${result.results[0].id}`)
-                resolve(result.results[0].id)
-            }else{
+            if (result[0].length !== 0) {
+                logger.info(`账号${account}的id为${result[0][0].id}`)
+                resolve(result[0][0].id)
+            } else {
                 resolve(0)
             }
         })
@@ -38,22 +38,22 @@ export function checkUserByEmail(account: string, password: string) {
  *  获取用户信息
  * @param account 账号
  */
-export async function getUserInfoByAccount(account:string) {
-    let res:any = null
+export async function getUserInfoByAccount(account: string) {
+    let res: any = null
 
     try {
-        res = await query('select * from user where id = ?',[account])
-    }catch (err){
+        res = await query('select * from users where id = ?', [account])
+    } catch (err) {
         logger.error(`查询用户id${account}失败:${err}`)
     }
-    if(res && res.results.length>0){
-       delete res.results[0].password
+    if (res && res[0].length > 0) {
+        delete res[0][0].password
     }
 
-    return res?.results[0]
+    return res[0][0]
 }
 
-export async function queryUserByKeyWord(keyword:string){
-   const res:any =  await query('select * from user where username like ?',[`%${keyword}%`])
-    return res.results
+export async function queryUserByKeyWord(keyword: string) {
+    const res: any = await query('select * from users where username like ?', [`%${keyword}%`])
+    return res[0]
 }

@@ -30,6 +30,8 @@ let recordTimeTimer = null
 let flag = false // 是否仍在@
 let fileName = ''
 let MessageType = null
+const isShowReplyMessage = ref(false)
+const replyMessageId = ref()
 
 const selectUserData = {
     startOffset: 0,
@@ -50,11 +52,11 @@ onMounted(() => {
     onStopRecord((url, blob) => {
         fileName = uuid()
         console.log(blob)
-        const file = new File([blob], fileName+'.ogg', {type: 'audio/ogg;codecs=opus'})
+        const file = new File([blob], fileName + '.ogg', {type: 'audio/ogg;codecs=opus'})
         const arr = file.name.split(".")
 
         const type = arr[arr.length - 1]
-        console.log('音频',file)
+        console.log('音频', file)
         apis.upload({
             file: file
         }).then(() => {
@@ -78,8 +80,8 @@ onMounted(() => {
             type: MessageType,
             data: {
                 file: fileName + '.' + type,
-                fileName:file.name,
-                fileSize:file.size
+                fileName: file.name,
+                fileSize: file.size
             }
         } as MessageBodyType, friendsStore.selectedFriend))
     })
@@ -191,16 +193,35 @@ function handleSendMessage() {
 }
 
 
+function reply(id: string) {
+    isShowReplyMessage.value = true
+    replyMessageId.value = id
+}
+
+defineExpose({
+    reply
+})
+
 </script>
 
 <template>
-    <div class="chat-box-container">
-        <div class="record-wrapper" @click="isRecording = !isRecording">
-            <img v-show="!isRecording" :src="RecordSvg" alt="录音" width="22" height="22">
-            <img v-show="isRecording" :src="KeyboardSvg" alt="键盘" width="22" height="22">
+
+    <div class="chat-box-container" :style="{
+            height:isShowReplyMessage?'80px':'40px'
+        }">
+        <div class="reply-message"  :style="{
+            transform:isShowReplyMessage?'translate(0,0)':'translate(0,100%)'
+        }">
+            消息{{ replyMessageId }}
+            <el-button @click="isShowReplyMessage = false">关闭</el-button>
         </div>
-        <div style="flex:1">
-            <div v-if="isRecording" class="record-bnt" @mousedown="()=>{
+        <div class="input-area">
+            <div class="record-wrapper" @click="isRecording = !isRecording">
+                <img v-show="!isRecording" :src="RecordSvg" alt="录音" width="22" height="22">
+                <img v-show="isRecording" :src="KeyboardSvg" alt="键盘" width="22" height="22">
+            </div>
+            <div style="flex:1">
+                <div v-if="isRecording" class="record-bnt" @mousedown="()=>{
                 startRecord()
                 if(recordTimeTimer){
                     clearInterval(recordTimeTimer as any)
@@ -215,164 +236,192 @@ function handleSendMessage() {
                 }
                 recordTime = 0
             }">
-                <div v-show="!recordTime">按住录音</div>
-                <div v-show="recordTime">{{ recordTime }}s</div>
-            </div>
-            <div v-else class="input-wrapper">
-                <div
-                        class="input"
-                        contenteditable="true"
-                        ref="inputRef"
-                        @input="handleInputChange"
-                        placeholder="来聊天吧"
-                        @keydown.enter="(e)=>{
+                    <div v-show="!recordTime">按住录音</div>
+                    <div v-show="recordTime">{{ recordTime }}s</div>
+                </div>
+                <div v-else class="input-wrapper">
+                    <div
+                            class="input"
+                            contenteditable="true"
+                            ref="inputRef"
+                            @input="handleInputChange"
+                            placeholder="来聊天吧"
+                            @keydown.enter="(e)=>{
                             if(flag){
                                 e.preventDefault()
                             }
                         }"
-                ></div>
+                    ></div>
+                </div>
             </div>
-        </div>
-        <el-popover
-                placement="top"
+            <el-popover
+                    placement="top"
 
-        >
-            <template #reference>
-                <span class="emoji-bnt">😀</span>
-            </template>
-            <div ref="emojisRef">
-                <Emojis :emojis="emojis" @selectEmoji="handleSelectEmoji"/>
-            </div>
-        </el-popover>
-        <!--   发送图片     -->
-        <svg @click="()=>{
+            >
+                <template #reference>
+                    <span class="emoji-bnt">😀</span>
+                </template>
+                <div ref="emojisRef">
+                    <Emojis :emojis="emojis" @selectEmoji="handleSelectEmoji"/>
+                </div>
+            </el-popover>
+            <!--   发送图片     -->
+            <svg @click="()=>{
             MessageType = MESSAGE_TYPE.PIC
             addFile({type:'images/*'})
 
         }" xmlns="http://www.w3.org/2000/svg" width="24px" height="24px"
-             viewBox="0 0 48 48">
-            <g fill="none" stroke="#000" stroke-linejoin="round" stroke-width="4">
-                <path stroke-linecap="round"
-                      d="M5 10C5 8.89543 5.89543 8 7 8L41 8C42.1046 8 43 8.89543 43 10V38C43 39.1046 42.1046 40 41 40H7C5.89543 40 5 39.1046 5 38V10Z"
-                      clip-rule="evenodd"/>
-                <path stroke-linecap="round"
-                      d="M14.5 18C15.3284 18 16 17.3284 16 16.5C16 15.6716 15.3284 15 14.5 15C13.6716 15 13 15.6716 13 16.5C13 17.3284 13.6716 18 14.5 18Z"
-                      clip-rule="evenodd"/>
-                <path fill="#2f88ff"
-                      d="M15 24L20 28L26 21L43 34V38C43 39.1046 42.1046 40 41 40H7C5.89543 40 5 39.1046 5 38V34L15 24Z"/>
-            </g>
-        </svg>
-        <!--        文件 -->
-        <svg @click="()=>{
+                 viewBox="0 0 48 48">
+                <g fill="none" stroke="#000" stroke-linejoin="round" stroke-width="4">
+                    <path stroke-linecap="round"
+                          d="M5 10C5 8.89543 5.89543 8 7 8L41 8C42.1046 8 43 8.89543 43 10V38C43 39.1046 42.1046 40 41 40H7C5.89543 40 5 39.1046 5 38V10Z"
+                          clip-rule="evenodd"/>
+                    <path stroke-linecap="round"
+                          d="M14.5 18C15.3284 18 16 17.3284 16 16.5C16 15.6716 15.3284 15 14.5 15C13.6716 15 13 15.6716 13 16.5C13 17.3284 13.6716 18 14.5 18Z"
+                          clip-rule="evenodd"/>
+                    <path fill="#2f88ff"
+                          d="M15 24L20 28L26 21L43 34V38C43 39.1046 42.1046 40 41 40H7C5.89543 40 5 39.1046 5 38V34L15 24Z"/>
+                </g>
+            </svg>
+            <!--        文件 -->
+            <svg @click="()=>{
             MessageType = MESSAGE_TYPE.FILE
             addFile()
         }" xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 0 48 48">
-            <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="4">
-                <path fill="#2f88ff" stroke="#000"
-                      d="M7 6C7 4.89543 7.89543 4 9 4H39C40.1046 4 41 4.89543 41 6V42C41 43.1046 40.1046 44 39 44H9C7.89543 44 7 43.1046 7 42V6Z"/>
-                <path stroke="#fff" d="M16 29H20"/>
-                <path stroke="#fff" d="M16 35H26"/>
-                <path stroke="#fff" d="M8 5C8 5 11.7647 18 24 18C36.2353 18 40 5 40 5"/>
-                <circle cx="24" cy="18" r="4" fill="#43ccf8" stroke="#fff"/>
-                <path stroke="#000" d="M15 4H9C7.89543 4 7 4.89543 7 6V12"/>
-                <path stroke="#000" d="M33 4H39C40.1046 4 41 4.89543 41 6V12"/>
-            </g>
-        </svg>
-        <!--       发送 -->
-        <svg @click="handleSendMessage" xmlns="http://www.w3.org/2000/svg" width="24px" height="24px"
-             viewBox="0 0 48 48">
-            <g fill="none" stroke-linejoin="round" stroke-width="4">
-                <path fill="#2f88ff" stroke="#000"
-                      d="M24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44Z"/>
-                <path stroke="#fff" stroke-linecap="round" d="M14.4917 24.5H32.4917"/>
-                <path stroke="#fff" stroke-linecap="round" d="M23.4917 15.5L32.4917 24.5L23.4917 33.5"/>
-            </g>
-        </svg>
+                <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="4">
+                    <path fill="#2f88ff" stroke="#000"
+                          d="M7 6C7 4.89543 7.89543 4 9 4H39C40.1046 4 41 4.89543 41 6V42C41 43.1046 40.1046 44 39 44H9C7.89543 44 7 43.1046 7 42V6Z"/>
+                    <path stroke="#fff" d="M16 29H20"/>
+                    <path stroke="#fff" d="M16 35H26"/>
+                    <path stroke="#fff" d="M8 5C8 5 11.7647 18 24 18C36.2353 18 40 5 40 5"/>
+                    <circle cx="24" cy="18" r="4" fill="#43ccf8" stroke="#fff"/>
+                    <path stroke="#000" d="M15 4H9C7.89543 4 7 4.89543 7 6V12"/>
+                    <path stroke="#000" d="M33 4H39C40.1046 4 41 4.89543 41 6V12"/>
+                </g>
+            </svg>
+            <!--       发送 -->
+            <svg @click="handleSendMessage" xmlns="http://www.w3.org/2000/svg" width="24px" height="24px"
+                 viewBox="0 0 48 48">
+                <g fill="none" stroke-linejoin="round" stroke-width="4">
+                    <path fill="#2f88ff" stroke="#000"
+                          d="M24 44C35.0457 44 44 35.0457 44 24C44 12.9543 35.0457 4 24 4C12.9543 4 4 12.9543 4 24C4 35.0457 12.9543 44 24 44Z"/>
+                    <path stroke="#fff" stroke-linecap="round" d="M14.4917 24.5H32.4917"/>
+                    <path stroke="#fff" stroke-linecap="round" d="M23.4917 15.5L32.4917 24.5L23.4917 33.5"/>
+                </g>
+            </svg>
+        </div>
     </div>
+
 </template>
 
 <style scoped lang="scss">
+
 .chat-box-container {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     padding: 4px;
-    align-items: center;
     gap: 3px;
-    height: 28px;
+    position: relative;
+    transition: height 0.3s ease;
 
-    .input-wrapper {
-        display: inline-flex;
-        cursor: text;
+    .reply-message {
+        transition: transform 0.3s ease;
+        z-index: 1;
+    }
+
+    .input-area {
+        z-index: 2;
+        display: flex;
+        flex-direction: row;
+        padding: 4px;
+        align-items: center;
+        gap: 3px;
+        height: 32px;
         width: 100%;
-    }
+        position: absolute;
+        bottom: 0;
+        background-color: white;
 
-    .input {
-        box-sizing: border-box;
-        outline: none;
-        border: none;
-        font-size: 14px;
-        border-radius: 6px;
-        padding: 4px 0.5rem;
-        width: 100px;
-        resize: none;
-        flex: 1;
-
-
-        &:focus {
-            outline: 1px var(--input-focus) solid;
+        .input-wrapper {
+            display: inline-flex;
+            cursor: text;
+            width: 100%;
         }
 
-        &:empty::before {
-            content: attr(placeholder);
-            pointer-events: none;
-            color: var(--font-placeholder);
+        .input {
+            box-sizing: border-box;
+            outline: none;
+            border: none;
+            height: 32px;
+            line-height: 32px;
+            font-size: 16px;
+            border-radius: 6px;
+            padding: 0 8px;
+            width: 100px;
+            resize: none;
+            flex: 1;
+
+
+            &:focus {
+                outline: 1px var(--input-focus) solid;
+            }
+
+            &:empty::before {
+                content: attr(placeholder);
+                pointer-events: none;
+                color: var(--font-placeholder);
+            }
+        }
+
+        .record-wrapper {
+            user-select: none;
+            border-radius: 3px;
+            cursor: pointer;
+            height: 100%;
+            padding: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            &:hover {
+                background-color: rgba(0, 0, 0, 0.1);
+            }
+        }
+
+        .emoji-bnt {
+            font-size: 20px;
+        }
+
+        .send-button {
+            color: black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .record-bnt {
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            user-select: none;
+
+            & > div {
+                animation: show 0.2s ease-in;
+            }
+
+            &:active {
+                scale: 0.8;
+            }
+
         }
     }
 
-    .record-wrapper {
-        user-select: none;
-        border-radius: 3px;
-        cursor: pointer;
-        height: 100%;
-        padding: 3px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
 
-        &:hover {
-            background-color: rgba(0, 0, 0, 0.1);
-        }
-    }
 
-    .emoji-bnt {
-        font-size: 20px;
-    }
-
-    .send-button {
-        color: black;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .record-bnt {
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        user-select: none;
-
-        & > div {
-            animation: show 0.2s ease-in;
-        }
-
-        &:active {
-            scale: 0.8;
-        }
-
-    }
 }
+
 
 @keyframes show {
     0% {

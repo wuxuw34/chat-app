@@ -14,6 +14,8 @@ export default {
         const user_id = (ctx.request as any).user_id
         const {type, data} = body as any
 
+        console.log('添加', user_id)
+
         switch (type) {
             case 'add': {
                 const friend_id = data.id
@@ -30,16 +32,14 @@ export default {
                     const userInfo = await getUserInfoByAccount(user_id)
                     // 检查对方是否在线,在线推送给对方
                     const isOnline = websocketEvents.checkOnlineById(friend_id)
-                    if (isOnline) {
-                        await websocketEvents.pushMessage({
-                            body: {
-                                type: MESSAGE_TYPE.ADD_FRIEND,
-                                data: userInfo
-                            },
-                            senderId: user_id,
-                            receiver: friend_id
-                        } as MessageType)
-                    }
+                    await websocketEvents.pushMessage({
+                        body: {
+                            type: MESSAGE_TYPE.ADD_FRIEND,
+                            data: userInfo
+                        },
+                        sender_id: user_id,
+                        receiver_id: friend_id
+                    } as MessageType, false)
                     ctx.body =
                         createRequestResult(1, '请求成功')
                 } else {
@@ -50,14 +50,16 @@ export default {
                 break
             }
             case 'add_friend_confirm': {
-                console.log(typeof data, data)
                 const {result} = data as any
-                console.log(result)
+
 
                 if (result) {
                     // 确认添加
                     const res = await requestAddFriend(user_id, data.friend_id)
-                    ctx.body = createRequestResult(1, '添加成功')
+                    const friend = await getUserInfoByAccount(data.friend_id)
+                    ctx.body = createRequestResult(1, '添加成功',{
+                        friend
+                    })
                 } else {
 
                 }

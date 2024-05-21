@@ -24,7 +24,7 @@ function makeupZero(num:number,cnt:number = 2){
 
 export function handleTime(timestamp:number,type:TIME_TYPE=TIME_TYPE.MESSAGE){
 
-    const now = new Date().getTime()
+    // const now = new Date().getTime()
     const day = new Date(Number(timestamp))
     const h = day.getHours(),m = day.getMinutes()
 

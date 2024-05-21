@@ -12,10 +12,10 @@ const postMsg =  (data:any)=>{
 class Socket {
     socket: WebSocket | null = null
     connectCountMax:number = 100 // 重连次数
-    heartTimer:number|null = null // 心跳检测计时器
+    heartTimer:any = null // 心跳检测计时器
     reconnectCount:number = 0 // 重连次数
     isReconnecting:boolean = false // 是否处于重连状态
-    timer:number|null = null // 重连计时器
+    timer:any = null // 重连计时器
     tasks:any[] = []
 
 
@@ -55,6 +55,7 @@ class Socket {
         this.socket?.send(JSON.stringify(data))
     }
 
+    //@ts-ignore
     handleOpen(e: Event) {
         this.dealTasks()
         postMsg({

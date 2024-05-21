@@ -12,8 +12,8 @@ export function setMessageContent(
     return {
         body:body,
         time:new Date().getTime(),
-        senderId:Number(userInfoStore().info.id),
-        receiver:receiver || friendsStore.selectedFriend,
+        sender_id:userInfoStore().info.id,
+        receiver_id:receiver || friendsStore.selectedFriend,
         isGroup:friendsStore.isGroup(receiver || friendsStore.selectedFriend)
     }
 }

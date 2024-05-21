@@ -2,7 +2,7 @@ import query from "../utils/database";
 
 export async function createGroup(username:string){
 
-    const res = await query('insert into user(username,password,isGroup) values(?,"",true)',[username])
+    const res = await query('insert into users (username,password,is_group) values(?,"",true)',[username])
 
     return res
 

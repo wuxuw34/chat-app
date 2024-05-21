@@ -19,10 +19,8 @@ export default async (ctx: Context, next: Next) => {
 
     }
 
-
     if (token) {
         const res = await getIdByToken(token);
-
         if (!res.user_id) {
             ctx.body = createRequestResult(0, '无效token')
         }

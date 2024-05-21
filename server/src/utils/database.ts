@@ -1,4 +1,4 @@
-import mysql, {FieldInfo, MysqlError, PoolConnection} from 'mysql'
+import mysql from 'mysql2/promise';
 
 const config = {
     host:'localhost',
@@ -7,23 +7,17 @@ const config = {
     database:'chat'
 }
 
-const pool = mysql.createPool(config)
+const pool = mysql.createPool(config);
 
 export default function query(sql:string,params?:any){
-    return new Promise((resolve,reject)=>{
-        pool.getConnection((err:Error,conn:PoolConnection)=>{
-            if(err){
-                reject(err)
-            }else{
-                conn.query(sql,params,(err:MysqlError|null,results:any,fields?:FieldInfo[])=>{
-                    if(err){
-                        reject(err)
-                    }else {
-                        resolve({results,fields})
-                    }
-                    conn.release()
-                })
-            }
+    return new Promise( async (resolve,reject)=>{
+        const conn = await pool.getConnection()
+        conn.query(sql,params).then(res=>{
+            resolve(res)
+        }).catch(err=>{
+            reject(err)
+        }).finally(()=>{
+            conn.release()
         })
     })
 }

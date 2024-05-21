@@ -11,14 +11,15 @@ export default {
 
         const message = ctx.request.body as MessageType
 
-        message.senderId = user_id
-        let res: any = null
+        message.sender_id = String(user_id)
+        let res: any = false
 
         if (message.token) {
             message!.token = null
         }
         if (message.body.data.callInfo) {
             await websocketEvents.pushMessage(message, false)
+            res = true
         } else {
             if (message.body.data.file) {
                 message.body.data.url = 'api/static/' + message.body.data.file
@@ -28,6 +29,7 @@ export default {
                 res = await insertMessage(message)
             }
             await websocketEvents.pushMessage(message)
+            res = true
         }
         if (res) {
             ctx.body = {

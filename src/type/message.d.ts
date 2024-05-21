@@ -11,11 +11,11 @@ type MessageBodyType = {
 }
 
 export  type MessageType = {
-    id?:number
+    id?:string
     body:MessageBodyType // 消息体
     time:string // 消息发送时间
-    senderId:number // 消息发送人
-    receiver:number // 消息接收者,
+    sender_id:number // 消息发送人
+    receiver_id:number // 消息接收者,
     isGroup?:string // 是否是群
     replay?:number[] // 回复消息
     token?:string|null

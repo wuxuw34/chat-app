@@ -18,11 +18,11 @@ export function updateReadMessage(mid: string, uid: string, fid: string) {
 
 export function insertMessage(message: MessageType) {
     return new Promise((resolve) => {
-        query('insert into messages (time,senderId,body,receiver,reply) values(?,?,?,?,?)', [
+        query('insert into messages (time,sender_id,body,receiver_id,reply) values(?,?,?,?,?)', [
             message.time,
-            message.senderId,
+            message.sender_id,
             utf16ToString(JSON.stringify(message.body)),
-            message.receiver,
+            message.receiver_id,
             message.replay
         ]).then((res: any) => {
             resolve(res.results)
@@ -35,18 +35,33 @@ export function insertMessage(message: MessageType) {
  * @param user_id
  */
 export async function getAllMessageById(user_id: string) {
-    const res = await query('select * from messages where senderId = ? or receiver = ?', [user_id, user_id]) as any
+    const res = await query('select * from messages where sender_id = ? or receiver_id = ?', [user_id, user_id]) as any
     // 处理
-    return res.results.map((item: any) => {
+    return res[0].map((item: any) => {
         item.body = stringToUTF16(item.body)
         return item
     })
 }
 
 export async function getHistoryMessageById(user_id: string, friend_id: string) {
-    const res: any = await query('select * from messages where (senderId = ? and receiver = ?) or (senderId = ? and receiver = ?)', [user_id, friend_id, friend_id, user_id])
-    return res.results.map((item: any) => {
+    const res: any = await query('select * from messages where (sender_id = ? and receiver_id = ?) or (sender_id = ? and receiver_id = ?)', [user_id, friend_id, friend_id, user_id])
+    return res[0].map((item: any) => {
         item.body = stringToUTF16(item.body)
         return item
     })
+}
+
+/**
+ *  删除某一个消息，必须验证发送人
+ * @param mid 消息id
+ * @param user_id 发送人id
+ */
+export async function deleteMessageById(mid: string, user_id: string) {
+    const res: any = await query('delete from messages where id = ? and sender_id = ?', [mid, user_id])
+    return res[0]
+}
+
+export async function getOneMessageById(mid: string) {
+    const res: any = await query('select * from messages where id = ?', [mid])
+    return res[0][0]
 }

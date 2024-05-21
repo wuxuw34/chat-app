@@ -21,11 +21,9 @@ onMounted(() => {
     }
     watch(() => is.value, () => {
         if (is.value) {
-            nextRef.value.style.transform = 'translate(0)'
-            mainRef.value?.classList.add('leave')
+            open()
         } else {
-            nextRef.value.style.transform = 'translate(100%)'
-            mainRef.value?.classList.add('enter')
+            close()
         }
     })
 })
@@ -52,7 +50,20 @@ function goBack() {
     is.value = null
 }
 
+function open(){
+    nextRef.value.style.transform = 'translate(0)'
+    mainRef.value?.classList.add('leave')
+}
+
+function close(){
+    nextRef.value.style.transform = 'translate(100%)'
+    mainRef.value?.classList.add('enter')
+}
+
 provide('goBack', goBack)
+defineExpose({
+    open,close
+})
 
 </script>
 

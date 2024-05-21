@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {onMounted, onUnmounted, ref} from "vue";
+import {onMounted, onUnmounted, provide, ref} from "vue";
 import useFriendsStore from "@/stores/friendsStore.ts";
 import apis from "@/services/apis.ts";
 import {useMessageStore} from "@/stores/messageStore.ts";
@@ -10,6 +10,7 @@ import {useStorage} from "@/hooks/useStorage.ts";
 import {useNoticeStore} from "@/stores/noticeStore.tsx";
 import {MessageType} from "@/type/message";
 import {MESSAGE_TYPE} from "@/enums";
+import Loading from "@/components/loaders/Loading.vue";
 
 const friendsStore = useFriendsStore()
 const messageStore = useMessageStore()
@@ -17,6 +18,7 @@ const tokenStorage = useStorage('token')
 const value = ref()
 const router = useRouter()
 const noticeStore = useNoticeStore()
+const isLoading = ref(true)
 
 onMounted(() => {
     getMessageList()
@@ -87,17 +89,20 @@ function request(){
     window.location.href = url
 }
 
+provide('closeLoading',()=>{
+    isLoading.value = false
+})
+
 </script>
 
 <template>
     <div
             class="app-wrapper"
+            v-show="!isLoading"
     >
-        <!--<a @click="request">点击请求</a>-->
         <RouterView/>
-
     </div>
-<!--    <video id="video" autoplay ></video>-->
+    <Loading v-show="isLoading" />
 </template>
 
 <style src="./style.scss" scoped lang="scss"></style>

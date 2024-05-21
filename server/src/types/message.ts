@@ -1,4 +1,4 @@
-export enum MESSAGE_TYPE  {
+export enum MESSAGE_TYPE {
     PIC, // 图片
     TEXT, // 文本
     VIDEO, // 视频
@@ -12,34 +12,36 @@ export enum MESSAGE_TYPE  {
     REVOKE_CALL, // 撤回电话视频
     HANG_UP, // 挂断
     UNANSWERED, // 未接听
-    FILE
+    FILE,
+    RECALL, // 撤回
 }
 
 type MessageBodyType = {
-    type:MESSAGE_TYPE,
-    data:{
-        file?:any,
-        content?:string
-        url?:string,
-        callInfo?:any
+    type: MESSAGE_TYPE,
+    data: {
+        file?: any,
+        content?: string
+        url?: string,
+        callInfo?: any,
+        mid?:string
     }
 }
 
 export  type MessageType = {
-    id?:string
-    body:MessageBodyType // 消息体
-    time:string // 消息发送时间
-    senderId:string // 消息发送人
-    receiver:string // 消息接收者,
-    isGroup?:string // 是否是群
-    replay?:string[] // 回复消息
-    token?:string|null
-    own?:boolean
+    id?: string
+    body: MessageBodyType // 消息体
+    time: string // 消息发送时间
+    sender_id: string // 消息发送人
+    receiver_id: string // 消息接收者,
+    isGroup?: string // 是否是群
+    replay?: string[] // 回复消息
+    token?: string | null
+    own?: boolean
 }
 
 // 服务器返回格式
 export type ServerResultType = {
-    state:0|1,
-    msg?:string,
-    data?:any
+    state: 0 | 1,
+    msg?: string,
+    data?: any
 }

@@ -5,7 +5,7 @@ export  enum UPDATE_TYPE  {
     DELETE
 }
 
-export enum MESSAGE_TYPE  {
+export enum MESSAGE_TYPE {
     PIC, // 图片
     TEXT, // 文本
     VIDEO, // 视频
@@ -19,5 +19,6 @@ export enum MESSAGE_TYPE  {
     REVOKE_CALL, // 撤回电话视频
     HANG_UP, // 挂断
     UNANSWERED, // 未接听
-    FILE
+    FILE,
+    RECALL, // 撤回
 }

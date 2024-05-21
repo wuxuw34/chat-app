@@ -32,27 +32,26 @@ const rooms = {
         }
     },
 }
-const sockets = new Map<string, UserSocket>()
+const sockets = new Map<string|number, UserSocket>()
 
 export const websocketEvents = {
     checkOnlineById: (id: string) => {
-        console.log('id = ', id, sockets.get(id))
         return sockets.get(id)
     },
     pushMessage: async (message: MessageType,self:boolean=true) => {
-        const receiverId = message.receiver
-        const {isGroup} = await checkUserById(receiverId, '') as {
-            isGroup: boolean
+        const receiverId = String(message.receiver_id)
+        const {is_group} = await checkUserById(receiverId, '') as {
+            is_group: boolean
         }
-        logger.info(`${message}是否是群消息:${isGroup}`)
-        if (isGroup) {
+        logger.info(`${message}是否是群消息:${is_group}`)
+        if (is_group) {
             // 发送给所有在线用户
             rooms.get(receiverId).send(JSON.stringify(message))
         } else {
             // 不是群组则是好友，只需要发送给receiver
-            console.log(`receiver:${sockets.get(receiverId) !== null},sender:${sockets.get(message.senderId) !== null}`);
+            console.log('receiver',receiverId,sockets.get(receiverId))
             sockets.get(receiverId)?.socket?.send(JSON.stringify(message))
-            self && sockets.get(message.senderId)?.socket?.send(JSON.stringify(message))
+            self && sockets.get(String(message.sender_id))?.socket?.send(JSON.stringify(message))
         }
     }
 }
@@ -63,7 +62,7 @@ export default function initWebsocket(httpServer: Server<any>) {
     websocket.on('connection', async (ws: Socket) => {
 
         if (ws.user && ws.user.token) {
-            const id = await getIdByToken(ws.user.token)
+            const id = String(await getIdByToken(ws.user.token))
             if (id) {
                 ws.user.userId = id
                 sockets.set(id, ws.user)
@@ -75,8 +74,12 @@ export default function initWebsocket(httpServer: Server<any>) {
             const d = JSON.parse(data)
 
             if (d.data && d.data.token) {
-                const {user_id: _id} = await getIdByToken(d.data.token)
-                const id = _id
+                const user = await getIdByToken(d.data.token)
+                if(!user || !user.user_id){
+                    return
+                }
+                const _id = user.user_id
+                const id = String(_id)
                 if (id) {
                     const userSocket = sockets.get(id)
 
@@ -98,7 +101,7 @@ export default function initWebsocket(httpServer: Server<any>) {
                     const res = await getAllFriendsById(id) as any[]
                     res.forEach(user=>{
                         const {isGroup} = user
-                        rooms.addUserToRoom(user.id,ws.user)
+                        rooms.addUserToRoom(String(user.id),ws.user)
                     })
 
                     // 加入房间

@@ -11,7 +11,6 @@ export default {
         const {type, pageSize = 20} = ctx.query
         const user_id = ctx.request.user_id
 
-        console.log('请求', type, user_id)
 
         switch (type) {
             case "all": {
@@ -28,8 +27,10 @@ export default {
             }
             case 'history': {
                 const friend_id = ctx.query.friend_id
+                const mid = ctx.query.mid
+                console.log('消息',mid)
                 const res = await getHistoryMessageById(user_id, friend_id)
-                const r = handleMessageById(res,user_id,pageSize)
+                const r = handleMessageById(res,user_id,pageSize,mid)
 
                 ctx.body = createRequestResult(1, '历史消息获取成功', Object.fromEntries(r.entries()))
 

@@ -12,6 +12,7 @@ import useUserInfoStore from "@/stores/userInfoStore.ts";
 import Avatar from "@/components/Avatar/Avatar.vue";
 import AudioItem from "@/pages/Chat/ChatMessageArea/AudioItem.vue";
 import FileItem from "@/pages/Chat/ChatMessageArea/FileItem.vue";
+import {inject} from "vue";
 
 const props = defineProps<MessageType>()
 
@@ -19,31 +20,31 @@ const friendsStore = useFriendsStore()
 const userinfo = useUserInfoStore()
 const {open} =  useImageViewer()
 
+const contextmenu = inject('contextmenu')
 
 </script>
 
 <template>
    <div  class="message-item-container" :style="{
        justifyContent:own?'end':'start'
-   }" :message-id="id">
+   }" :message-id="id" @contextmenu.prevent="(e)=>{
+       contextmenu(e,id)
+   }">
        <div v-if="!own" class="message-item-wrapper" >
-<!--           <div class="avatar">-->
-<!--               <img :src="config.server + 'api/static/avatars/default.jpg'" alt="头像"/>-->
-<!--           </div>-->
-           <avatar :id="senderId" :username="friendsStore.getUsernameById(senderId)" />
+           <avatar :id="sender_id" :username="friendsStore.getUsernameById(sender_id)" />
            <div class="message" >
                <div class="corner"></div>
                <div class="info" :style="{
-                color:getUserNameColorById(senderId)
-            }"> {{ friendsStore.getUsernameById(senderId) }}
+                color:getUserNameColorById(sender_id)
+            }"> {{ friendsStore.getUsernameById(sender_id) }}
                </div>
                <div class="reply-message"></div>
                <div class="body">
                    {{ body?.data?.content }}
-                   <ImageViewer v-if="body.type === MESSAGE_TYPE.PIC" :url="config.server + body.data.url" />
-                   <AudioItem v-else-if="body.type === MESSAGE_TYPE.AUDIO" :url="config.server + body.data.url" />
-                   <FileItem v-else-if="body.type === MESSAGE_TYPE.FILE" :file-name="body.data.fileName" :file-size="body.data.fileSize" :url="body.data.url" />
-                   <div v-else-if="body.type === MESSAGE_TYPE.CALL">
+                   <ImageViewer v-if="body?.type === MESSAGE_TYPE.PIC" :url="config.server + body.data.url" />
+                   <AudioItem v-else-if="body?.type === MESSAGE_TYPE.AUDIO" :url="config.server + body.data.url" />
+                   <FileItem v-else-if="body?.type === MESSAGE_TYPE.FILE" :file-name="body.data.fileName" :file-size="body.data.fileSize" :url="body.data.url" />
+                   <div v-else-if="body?.type === MESSAGE_TYPE.CALL">
                         {{  }}
                     </div>
                    <div class="time">
@@ -56,7 +57,7 @@ const {open} =  useImageViewer()
            <div class="message" >
                <div class="corner"></div>
                <div class="info" :style="{
-                color:getUserNameColorById(senderId)
+                color:getUserNameColorById(sender_id)
             }"> {{ userinfo.info.username }}
                </div>
                <div class="reply-message"></div>
@@ -71,7 +72,7 @@ const {open} =  useImageViewer()
                    </div>
                </div>
            </div>
-           <avatar :id="senderId" :username="userinfo.info.username" />
+           <avatar :id="sender_id" :username="userinfo.info.username" />
        </div>
    </div>
 </template>

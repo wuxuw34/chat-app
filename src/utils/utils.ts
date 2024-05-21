@@ -6,7 +6,7 @@ import {v4 as uuidv4} from 'uuid'
  * @param delay 间隔时间 默认1000
  */
 export function debounce(fn: any, delay: number = 1000) {
-    let timer: null | number = null
+    let timer: any = null
 
     return function () {
         // @ts-ignore

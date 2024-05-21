@@ -9,7 +9,7 @@ export async function insertTokenIntoLogin(token: string, id: string) {
 
 export async function getIdByToken(token: string) {
     const token_res = await query('select user_id from login where token = ?', [token]) as any
-    return token_res.results[0]
+    return token_res[0][0]
 }
 
 /**
